@@ -36,6 +36,12 @@
 		</dependency>
 
 		<dependency>
+    		<groupId>com.github.oshi</groupId>
+    		<artifactId>oshi-core</artifactId>
+    		<version>6.4.10</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
