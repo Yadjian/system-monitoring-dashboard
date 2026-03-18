@@ -29,4 +29,24 @@ public class SystemMetricsDTO {
 
     public long getRamAvailableMB() { return ramAvailableMB; }
     public void setRamAvailableMB(long ramAvailableMB) { this.ramAvailableMB = ramAvailableMB; }
+
+    private double cpuTemperature;
+    public double getCpuTemperature() { return cpuTemperature; }
+    public void setCpuTemperature(double cpuTemperature) { this.cpuTemperature = cpuTemperature; }
+
+    private int cpuPhysicalCores;
+    public int getCpuPhysicalCores() { return cpuPhysicalCores; }
+    public void setCpuPhysicalCores(int cpuPhysicalCores) { this.cpuPhysicalCores = cpuPhysicalCores; }
+
+    private int cpuLogicalCores;
+    public int getCpuLogicalCores() { return cpuLogicalCores; }
+    public void setCpuLogicalCores(int cpuLogicalCores) { this.cpuLogicalCores = cpuLogicalCores; }
+
+    private long cpuMaxFreq;
+    public long getCpuMaxFreq() { return cpuMaxFreq; }
+    public void setCpuMaxFreq(long cpuMaxFreq) { this.cpuMaxFreq = cpuMaxFreq; }
+
+    private long[] cpuCurrentFreq;
+    public long[] getCpuCurrentFreq() { return cpuCurrentFreq; }
+    public void setCpuCurrentFreq(long[] cpuCurrentFreq) { this.cpuCurrentFreq = cpuCurrentFreq; }
 }

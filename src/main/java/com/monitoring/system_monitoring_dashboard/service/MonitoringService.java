@@ -4,6 +4,8 @@ import com.monitoring.system_monitoring_dashboard.model.SystemMetricsDTO;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
+import oshi.hardware.Sensors;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +24,7 @@ public class MonitoringService {
         SystemInfo systemInfo = new SystemInfo();
         CentralProcessor cpu = systemInfo.getHardware().getProcessor();
         GlobalMemory memory = systemInfo.getHardware().getMemory();
+        Sensors sensors = systemInfo.getHardware().getSensors();
 
         // Measure CPU usage over 1 second interval
         long[] oldTicks = cpu.getSystemCpuLoadTicks();
@@ -31,6 +34,11 @@ public class MonitoringService {
             Thread.currentThread().interrupt();
         }
         double cpuLoad = cpu.getSystemCpuLoadBetweenTicks(oldTicks) * 100;
+        double cpuTemp = sensors.getCpuTemperature();
+        int physicalCores = cpu.getPhysicalProcessorCount();
+        int logicalCores = cpu.getLogicalProcessorCount();
+        long freqMax = cpu.getMaxFreq();
+        long[] freqCurrent = cpu.getCurrentFreq();
 
         // Create and fill the DTO
         SystemMetricsDTO dto = new SystemMetricsDTO();
@@ -38,7 +46,11 @@ public class MonitoringService {
         dto.setCpuUsagePercent(String.format("%.2f", cpuLoad));
         dto.setRamTotalMB(memory.getTotal() / (1024 * 1024));
         dto.setRamAvailableMB(memory.getAvailable() / (1024 * 1024));
-
+        dto.setCpuTemperature(cpuTemp);
+        dto.setCpuPhysicalCores(physicalCores);
+        dto.setCpuLogicalCores(logicalCores);
+        dto.setCpuMaxFreq(freqMax);
+        dto.setCpuCurrentFreq(freqCurrent);
         return dto;
     }
 }
