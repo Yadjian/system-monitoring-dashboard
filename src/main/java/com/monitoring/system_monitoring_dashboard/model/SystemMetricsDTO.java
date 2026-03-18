@@ -11,6 +11,7 @@ public class SystemMetricsDTO {
     private RamMetricsDTO ram;
     private List<DiskMetricsDTO> disks;
     private List<NetworkMetricsDTO> networks;
+    private GpuMetricsDTO gpu;
 
     // Getters and setters
     public CpuMetricsDTO getCpu() { return cpu; }
@@ -24,4 +25,7 @@ public class SystemMetricsDTO {
 
     public List<NetworkMetricsDTO> getNetworks() { return networks; }
     public void setNetworks(List<NetworkMetricsDTO> networks) { this.networks = networks; }
+
+    public GpuMetricsDTO getGpu() { return gpu; }
+    public void setGpu(GpuMetricsDTO gpu) { this.gpu = gpu; }
 }
