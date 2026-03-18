@@ -1,6 +1,8 @@
 package com.monitoring.system_monitoring_dashboard.service;
 
 import com.monitoring.system_monitoring_dashboard.model.SystemMetricsDTO;
+import com.monitoring.system_monitoring_dashboard.model.CpuMetricsDTO;
+import com.monitoring.system_monitoring_dashboard.model.RamMetricsDTO;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -34,23 +36,27 @@ public class MonitoringService {
             Thread.currentThread().interrupt();
         }
         double cpuLoad = cpu.getSystemCpuLoadBetweenTicks(oldTicks) * 100;
-        double cpuTemp = sensors.getCpuTemperature();
-        int physicalCores = cpu.getPhysicalProcessorCount();
-        int logicalCores = cpu.getLogicalProcessorCount();
-        long freqMax = cpu.getMaxFreq();
-        long[] freqCurrent = cpu.getCurrentFreq();
 
-        // Create and fill the DTO
+        // Create and fill the DTO CPU
+        CpuMetricsDTO cpuDto = new CpuMetricsDTO();
+        cpuDto.setName(cpu.getProcessorIdentifier().getName());
+        cpuDto.setUsagePercent(cpuLoad);
+        cpuDto.setTemperature(sensors.getCpuTemperature());
+        cpuDto.setPhysicalCores(cpu.getPhysicalProcessorCount());
+        cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
+        cpuDto.setMaxFreq(cpu.getMaxFreq());
+        cpuDto.setCurrentFreq(cpu.getCurrentFreq());
+
+        // Create and fill the DTO RAM
+        RamMetricsDTO ramDto = new RamMetricsDTO();
+        ramDto.setTotalMB(memory.getTotal() / (1024 * 1024));
+        ramDto.setAvailableMB(memory.getAvailable() / (1024 * 1024));
+
+        // Grouping in the main DTO
         SystemMetricsDTO dto = new SystemMetricsDTO();
-        dto.setCpuName(cpu.getProcessorIdentifier().getName());
-        dto.setCpuUsagePercent(String.format("%.2f", cpuLoad));
-        dto.setRamTotalMB(memory.getTotal() / (1024 * 1024));
-        dto.setRamAvailableMB(memory.getAvailable() / (1024 * 1024));
-        dto.setCpuTemperature(cpuTemp);
-        dto.setCpuPhysicalCores(physicalCores);
-        dto.setCpuLogicalCores(logicalCores);
-        dto.setCpuMaxFreq(freqMax);
-        dto.setCpuCurrentFreq(freqCurrent);
+        dto.setCpu(cpuDto);
+        dto.setRam(ramDto);
+
         return dto;
     }
 }
