@@ -1,12 +1,23 @@
 package com.monitoring.system_monitoring_dashboard.model;
 
+/**
+ * Data Transfer Object representing network interface metrics.
+ * Contains information about interface name, IP address, MAC address, bytes and packets sent/received.
+ */
 public class NetworkMetricsDTO {
+    /** Network interface name. */
     private String interfaceName;
+    /** IPv4 address of the interface. */
     private String ipAddress;
+    /** MAC address of the interface. */
     private String macAddress;
+    /** Number of bytes sent. */
     private long bytesSent;
+    /** Number of bytes received. */
     private long bytesReceived;
+    /** Number of packets sent. */
     private long packetsSent;
+    /** Number of packets received. */
     private long packetsReceived;
 
     // Getters and setters

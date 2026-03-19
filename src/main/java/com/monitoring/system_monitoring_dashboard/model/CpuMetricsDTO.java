@@ -1,14 +1,27 @@
 package com.monitoring.system_monitoring_dashboard.model;
 
+/**
+ * Data Transfer Object representing CPU metrics.
+ * Contains information about CPU name, usage, temperature, core counts, and frequencies.
+ */
 public class CpuMetricsDTO {
+    /** CPU name or model. */
     private String name;
+    /** Current CPU usage percentage. */
     private double usagePercent;
+    /** Current CPU temperature. */
     private double temperature;
+    /** Maximum recorded CPU temperature. */
     private double temperatureMax;
+    /** Minimum recorded CPU temperature. */
     private double temperatureMin;
+    /** Number of physical CPU cores. */
     private int physicalCores;
+    /** Number of logical CPU cores. */
     private int logicalCores;
+    /** Maximum CPU frequency. */
     private long maxFreq;
+    /** Array of current frequencies for each core. */
     private long[] currentFreq;
 
     // Getters and setters

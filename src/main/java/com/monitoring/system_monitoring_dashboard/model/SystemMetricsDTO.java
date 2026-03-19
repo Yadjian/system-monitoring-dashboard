@@ -3,14 +3,19 @@ package com.monitoring.system_monitoring_dashboard.model;
 import java.util.List;
 
 /**
- * Data Transfer Object (DTO) for system metrics.
- * Contains CPU and RAM information to be sent as JSON in the API response.
+ * Data Transfer Object representing global system metrics.
+ * Contains CPU, RAM, disk, network, and GPU information to be sent as JSON in the API response.
  */
 public class SystemMetricsDTO {
+    /** CPU metrics. */
     private CpuMetricsDTO cpu;
+    /** RAM metrics. */
     private RamMetricsDTO ram;
+    /** List of disk metrics. */
     private List<DiskMetricsDTO> disks;
+    /** List of network interface metrics. */
     private List<NetworkMetricsDTO> networks;
+    /** GPU metrics. */
     private GpuMetricsDTO gpu;
 
     // Getters and setters

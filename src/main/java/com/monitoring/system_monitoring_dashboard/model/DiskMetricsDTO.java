@@ -1,10 +1,19 @@
 package com.monitoring.system_monitoring_dashboard.model;
 
+/**
+ * Data Transfer Object representing disk metrics.
+ * Contains information about disk name, total, free, used space, and usage percentage.
+ */
 public class DiskMetricsDTO {
+    /** Disk name or identifier. */
     private String name;
+    /** Total disk space in megabytes. */
     private long totalMB;
+    /** Free disk space in megabytes. */
     private long freeMB;
+    /** Used disk space in megabytes. */
     private long usedMB;
+    /** Disk usage percentage. */
     private double usagePercent;
 
     // Getters and setters

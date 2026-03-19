@@ -1,39 +1,28 @@
 package com.monitoring.system_monitoring_dashboard.service;
 
-import com.monitoring.system_monitoring_dashboard.model.SystemMetricsDTO;
-import com.monitoring.system_monitoring_dashboard.model.CpuMetricsDTO;
-import com.monitoring.system_monitoring_dashboard.model.RamMetricsDTO;
+import com.monitoring.system_monitoring_dashboard.model.*;
 import oshi.SystemInfo;
-import oshi.hardware.CentralProcessor;
-import oshi.hardware.GlobalMemory;
-import oshi.hardware.Sensors;
+import oshi.hardware.*;
 import org.springframework.stereotype.Service;
-import com.monitoring.system_monitoring_dashboard.model.DiskMetricsDTO;
-import com.monitoring.system_monitoring_dashboard.model.NetworkMetricsDTO;
-import com.monitoring.system_monitoring_dashboard.model.GpuMetricsDTO;
-import oshi.hardware.HWDiskStore;
-import oshi.hardware.NetworkIF;
-import oshi.hardware.GraphicsCard;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Service class responsible for retrieving system metrics using OSHI.
+ * Service responsible for retrieving system metrics using the OSHI library.
+ * Provides methods to get metrics for CPU, RAM, disks, network interfaces, and GPU.
  */
 @Service
 public class MonitoringService {
 
-    /**
-     * Retrieves current system metrics (CPU and RAM) using OSHI.
-     * Measures CPU usage over a 1-second interval.
-     *
-     * @return SystemMetricsDTO containing CPU name, usage, and RAM info
-     */
-    public SystemMetricsDTO getSystemMetrics() {
-        SystemInfo systemInfo = new SystemInfo();
-        var hardware = systemInfo.getHardware();
+    /** Singleton instance of SystemInfo for hardware access. */
+    private final SystemInfo systemInfo = new SystemInfo();
 
-        // CPU
+    /**
+     * Retrieves current CPU metrics.
+     * @return CpuMetricsDTO containing CPU information and usage.
+     */
+    public CpuMetricsDTO getCpuMetrics() {
+        var hardware = systemInfo.getHardware();
         CentralProcessor cpu = hardware.getProcessor();
         Sensors sensors = hardware.getSensors();
         long[] oldTicks = cpu.getSystemCpuLoadTicks();
@@ -47,8 +36,15 @@ public class MonitoringService {
         cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
         cpuDto.setMaxFreq(cpu.getMaxFreq());
         cpuDto.setCurrentFreq(cpu.getCurrentFreq());
+        return cpuDto;
+    }
 
-        // RAM
+    /**
+     * Retrieves current RAM metrics.
+     * @return RamMetricsDTO containing RAM information and usage.
+     */
+    public RamMetricsDTO getRamMetrics() {
+        var hardware = systemInfo.getHardware();
         GlobalMemory memory = hardware.getMemory();
         RamMetricsDTO ramDto = new RamMetricsDTO();
         ramDto.setTotalMB(memory.getTotal() / (1024 * 1024));
@@ -56,8 +52,15 @@ public class MonitoringService {
         long usedMB = ramDto.getTotalMB() - ramDto.getAvailableMB();
         ramDto.setUsedMB(usedMB);
         ramDto.setUsagePercent((ramDto.getTotalMB() > 0) ? (usedMB * 100.0 / ramDto.getTotalMB()) : 0);
+        return ramDto;
+    }
 
-        // Disks
+    /**
+     * Retrieves current disk metrics for all disk drives.
+     * @return List of DiskMetricsDTO containing disk information and usage.
+     */
+    public List<DiskMetricsDTO> getDiskMetrics() {
+        var hardware = systemInfo.getHardware();
         List<DiskMetricsDTO> diskDtos = new ArrayList<>();
         for (HWDiskStore disk : hardware.getDiskStores()) {
             DiskMetricsDTO diskDto = new DiskMetricsDTO();
@@ -68,8 +71,15 @@ public class MonitoringService {
             diskDto.setUsagePercent((diskDto.getTotalMB() > 0) ? (diskDto.getUsedMB() * 100.0 / diskDto.getTotalMB()) : 0);
             diskDtos.add(diskDto);
         }
+        return diskDtos;
+    }
 
-        // Network
+    /**
+     * Retrieves current network metrics for all network interfaces.
+     * @return List of NetworkMetricsDTO containing network information and usage.
+     */
+    public List<NetworkMetricsDTO> getNetworkMetrics() {
+        var hardware = systemInfo.getHardware();
         List<NetworkMetricsDTO> networkDtos = new ArrayList<>();
         for (NetworkIF net : hardware.getNetworkIFs()) {
             NetworkMetricsDTO netDto = new NetworkMetricsDTO();
@@ -82,8 +92,15 @@ public class MonitoringService {
             netDto.setPacketsReceived(net.getPacketsRecv());
             networkDtos.add(netDto);
         }
+        return networkDtos;
+    }
 
-        // GPU
+    /**
+     * Retrieves current GPU metrics.
+     * @return GpuMetricsDTO containing GPU information.
+     */
+    public GpuMetricsDTO getGpuMetrics() {
+        var hardware = systemInfo.getHardware();
         List<GraphicsCard> gpus = hardware.getGraphicsCards();
         GpuMetricsDTO gpuDto = new GpuMetricsDTO();
         if (!gpus.isEmpty()) {
@@ -94,15 +111,20 @@ public class MonitoringService {
             gpuDto.setVramUsedMB(0);
             gpuDto.setTemperature(0.0);
         }
+        return gpuDto;
+    }
 
-        // Main DTO
+    /**
+     * Retrieves all system metrics (CPU, RAM, disks, network, GPU).
+     * @return SystemMetricsDTO containing all system information.
+     */
+    public SystemMetricsDTO getSystemMetrics() {
         SystemMetricsDTO dto = new SystemMetricsDTO();
-        dto.setCpu(cpuDto);
-        dto.setRam(ramDto);
-        dto.setDisks(diskDtos);
-        dto.setNetworks(networkDtos);
-        dto.setGpu(gpuDto);
-
+        dto.setCpu(getCpuMetrics());
+        dto.setRam(getRamMetrics());
+        dto.setDisks(getDiskMetrics());
+        dto.setNetworks(getNetworkMetrics());
+        dto.setGpu(getGpuMetrics());
         return dto;
     }
 }

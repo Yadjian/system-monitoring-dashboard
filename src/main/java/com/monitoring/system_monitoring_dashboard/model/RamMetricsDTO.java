@@ -1,9 +1,17 @@
 package com.monitoring.system_monitoring_dashboard.model;
 
+/**
+ * Data Transfer Object representing RAM metrics.
+ * Contains information about total, available, used memory and usage percentage.
+ */
 public class RamMetricsDTO {
+    /** Total RAM in megabytes. */
     private long totalMB;
+    /** Available RAM in megabytes. */
     private long availableMB;
+    /** Used RAM in megabytes. */
     private long usedMB;
+    /** RAM usage percentage. */
     private double usagePercent;
 
     // Getters and setters
