@@ -16,7 +16,6 @@ import java.util.List;
  *  - /api/disks       -> Disks metrics list
  *  - /api/networks    -> Network interfaces metrics list
  *  - /api/gpu         -> GPU metrics
- *  - /api/ram/modules -> (optional) physical memory modules inventory
  */
 @RestController
 public class MonitoringController {
@@ -85,14 +84,5 @@ public class MonitoringController {
     @GetMapping("/api/gpu")
     public GpuMetricsDTO getGpuMetrics() {
         return monitoringService.getGpuMetrics();
-    }
-
-    /**
-     * Physical memory modules inventory.
-     * @returns a list of MemoryMetricsDTO for hardware inventory/diagnostics.
-     */
-    @GetMapping("/api/memory")
-    public List<MemoryMetricsDTO> getMemoryMetrics() {
-        return monitoringService.getMemoryMetrics();
     }
 }

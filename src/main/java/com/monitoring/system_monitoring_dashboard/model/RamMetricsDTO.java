@@ -1,5 +1,7 @@
 package com.monitoring.system_monitoring_dashboard.model;
 
+import java.util.List;
+
 /**
  * Data Transfer Object representing RAM metrics.
  * Contains information about total, available, used memory and usage percentage.
@@ -13,6 +15,12 @@ public class RamMetricsDTO {
     private long usedMB;
     /** RAM usage percentage. */
     private double usagePercent;
+    /** List of RAM manufacturers, one per slot. */
+    private List<String> manufacturers;
+    /** List of RAM part numbers (model/reference), one per slot. */
+    private List<String> partNumbers;
+    /** List of RAM speeds in MHz, one per slot. */
+    private List<Long> speedsMHz;
 
     // Getters and setters
     public long getTotalMB() { return totalMB; }
@@ -26,4 +34,13 @@ public class RamMetricsDTO {
 
     public double getUsagePercent() { return usagePercent; }
     public void setUsagePercent(double usagePercent) { this.usagePercent = usagePercent; }
+
+    public List<String> getManufacturers() { return manufacturers; }
+    public void setManufacturers(List<String> manufacturers) { this.manufacturers = manufacturers; }
+
+    public List<String> getPartNumbers() { return partNumbers; }
+    public void setPartNumbers(List<String> partNumbers) { this.partNumbers = partNumbers; }
+
+    public List<Long> getSpeedsMHz() { return speedsMHz; }
+    public void setSpeedsMHz(List<Long> speedsMHz) { this.speedsMHz = speedsMHz; }
 }
