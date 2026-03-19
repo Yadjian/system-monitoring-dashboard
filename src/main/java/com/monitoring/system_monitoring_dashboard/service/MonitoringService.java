@@ -117,7 +117,6 @@ public class MonitoringService {
     /**
     * Compact list of physical memory modules (DIMMs).
     * Returns manufacturer, bank label, capacity and clock (part/serial not reliably available).
-    *
     * @return List<MemoryMetricsDTO>
     */
     public List<MemoryMetricsDTO> getMemoryMetrics() {

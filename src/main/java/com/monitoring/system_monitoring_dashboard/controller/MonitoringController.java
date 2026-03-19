@@ -89,10 +89,9 @@ public class MonitoringController {
 
     /**
      * Physical memory modules inventory.
-     * Optional endpoint — returns a list of MemoryModuleDTO for hardware inventory/diagnostics.
-     * This data is relatively static; consider calling it rarely or caching.
+     * @returns a list of MemoryMetricsDTO for hardware inventory/diagnostics.
      */
-    @GetMapping("/api/ram/modules")
+    @GetMapping("/api/memory")
     public List<MemoryMetricsDTO> getMemoryMetrics() {
         return monitoringService.getMemoryMetrics();
     }
