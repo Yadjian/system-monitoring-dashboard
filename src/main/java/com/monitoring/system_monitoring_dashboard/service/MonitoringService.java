@@ -45,7 +45,12 @@ public class MonitoringService {
         cpuDto.setPhysicalCores(cpu.getPhysicalProcessorCount());
         cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
         cpuDto.setMaxFreq(cpu.getMaxFreq());
-        cpuDto.setCurrentFreq(cpu.getCurrentFreq());
+        long[] freqsHz = cpu.getCurrentFreq();
+        double[] freqsGHz = new double[freqsHz.length];
+        for (int i = 0; i < freqsHz.length; i++) {
+            freqsGHz[i] = freqsHz[i] / 1_000_000_000.0;
+        }
+        cpuDto.setCurrentFreqGHz(freqsGHz);
         cpuDto.setCritical(cpuDto.getUsagePercent() > cpuCriticalThreshold);
         return cpuDto;
     }

@@ -21,8 +21,8 @@ public class CpuMetricsDTO {
     private int logicalCores;
     /** Maximum CPU frequency. */
     private long maxFreq;
-    /** Array of current frequencies for each core. */
-    private long[] currentFreq;
+    /** Array of current frequencies for each core, in GHz. */
+    private double[] currentFreqGHz;
 
     // Getters and setters
     public String getName() { return name; }
@@ -43,8 +43,8 @@ public class CpuMetricsDTO {
     public long getMaxFreq() { return maxFreq; }
     public void setMaxFreq(long maxFreq) { this.maxFreq = maxFreq; }
 
-    public long[] getCurrentFreq() { return currentFreq; }
-    public void setCurrentFreq(long[] currentFreq) { this.currentFreq = currentFreq; }
+    public double[] getCurrentFreqGHz() { return currentFreqGHz; }
+    public void setCurrentFreqGHz(double[] currentFreqGHz) { this.currentFreqGHz = currentFreqGHz; }
 
     public double getTemperatureMax() { return temperatureMax; }
     public void setTemperatureMax(double temperatureMax) { this.temperatureMax = temperatureMax; }
