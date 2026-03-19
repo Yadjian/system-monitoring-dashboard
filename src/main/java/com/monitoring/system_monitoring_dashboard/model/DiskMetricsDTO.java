@@ -31,5 +31,9 @@ public class DiskMetricsDTO {
 
     public double getUsagePercent() { return usagePercent; }
     public void setUsagePercent(double usagePercent) { this.usagePercent = usagePercent; }
+
+    private boolean critical;
+    public boolean isCritical() { return critical; }
+    public void setCritical(boolean critical) { this.critical = critical; }
 }
 

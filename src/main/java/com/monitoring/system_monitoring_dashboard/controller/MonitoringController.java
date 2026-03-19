@@ -2,7 +2,6 @@ package com.monitoring.system_monitoring_dashboard.controller;
 
 import com.monitoring.system_monitoring_dashboard.model.*;
 import com.monitoring.system_monitoring_dashboard.service.MonitoringService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -27,7 +26,6 @@ public class MonitoringController {
      * Constructor for MonitoringController.
      * @param monitoringService Service used to retrieve system metrics.
      */
-    @Autowired
     public MonitoringController(MonitoringService monitoringService) {
         this.monitoringService = monitoringService;
     }

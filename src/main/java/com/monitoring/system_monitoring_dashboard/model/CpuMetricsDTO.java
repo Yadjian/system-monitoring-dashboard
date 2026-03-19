@@ -51,4 +51,8 @@ public class CpuMetricsDTO {
 
     public double getTemperatureMin() { return temperatureMin; }
     public void setTemperatureMin(double temperatureMin) { this.temperatureMin = temperatureMin; }
+
+    private boolean critical;
+    public boolean isCritical() { return critical; }
+    public void setCritical(boolean critical) { this.critical = critical; }
 }

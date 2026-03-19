@@ -43,4 +43,8 @@ public class RamMetricsDTO {
 
     public List<Long> getSpeedsMHz() { return speedsMHz; }
     public void setSpeedsMHz(List<Long> speedsMHz) { this.speedsMHz = speedsMHz; }
+
+    private boolean critical;
+    public boolean isCritical() { return critical; }
+    public void setCritical(boolean critical) { this.critical = critical; }
 }

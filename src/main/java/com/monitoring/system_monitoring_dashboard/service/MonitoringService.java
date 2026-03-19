@@ -4,6 +4,7 @@ import com.monitoring.system_monitoring_dashboard.model.*;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,15 @@ public class MonitoringService {
 
     /** Singleton instance of SystemInfo for hardware access. */
     private final SystemInfo systemInfo = new SystemInfo();
+
+    @Value("${metrics.cpu.critical-threshold:95}")
+    private double cpuCriticalThreshold;
+
+    @Value("${metrics.ram.critical-threshold:90}")
+    private double ramCriticalThreshold;
+
+    @Value("${metrics.disk.critical-threshold:90}")
+    private double diskCriticalThreshold;
 
     /**
      * Retrieves current CPU metrics.
@@ -36,6 +46,7 @@ public class MonitoringService {
         cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
         cpuDto.setMaxFreq(cpu.getMaxFreq());
         cpuDto.setCurrentFreq(cpu.getCurrentFreq());
+        cpuDto.setCritical(cpuDto.getUsagePercent() > cpuCriticalThreshold);
         return cpuDto;
     }
 
@@ -63,6 +74,7 @@ public class MonitoringService {
         ramDto.setManufacturers(manufacturers);
         ramDto.setPartNumbers(partNumbers);
         ramDto.setSpeedsMHz(speedsMHz);
+        ramDto.setCritical(ramDto.getUsagePercent() > ramCriticalThreshold);
 
         return ramDto;
     }
@@ -81,6 +93,7 @@ public class MonitoringService {
             diskDto.setFreeMB(0);
             diskDto.setUsedMB(diskDto.getTotalMB() - diskDto.getFreeMB());
             diskDto.setUsagePercent((diskDto.getTotalMB() > 0) ? (diskDto.getUsedMB() * 100.0 / diskDto.getTotalMB()) : 0);
+            diskDto.setCritical(diskDto.getUsagePercent() > diskCriticalThreshold);
             diskDtos.add(diskDto);
         }
         return diskDtos;
