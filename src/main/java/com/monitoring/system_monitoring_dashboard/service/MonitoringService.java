@@ -113,6 +113,31 @@ public class MonitoringService {
         }
         return gpuDto;
     }
+    
+    /**
+    * Compact list of physical memory modules (DIMMs).
+    * Returns manufacturer, bank label, capacity and clock (part/serial not reliably available).
+    *
+    * @return List<MemoryMetricsDTO>
+    */
+    public List<MemoryMetricsDTO> getMemoryMetrics() {
+        var mem = systemInfo.getHardware().getMemory();
+        List<MemoryMetricsDTO> modules = new ArrayList<>();
+        if (mem == null || mem.getPhysicalMemory() == null) return modules;
+        for (PhysicalMemory pm : mem.getPhysicalMemory()) {
+            MemoryMetricsDTO memoryDto = new MemoryMetricsDTO();
+            memoryDto.setBankLabel(pm.getBankLabel() != null ? pm.getBankLabel() : "");
+            memoryDto.setCapacityMB(pm.getCapacity() / (1024L * 1024L));
+            long clk = 0;
+            try { clk = pm.getClockSpeed(); } catch (Throwable ignored) {}
+            memoryDto.setClockSpeedMHz(clk);
+            memoryDto.setManufacturer(pm.getManufacturer() != null ? pm.getManufacturer() : "");
+            memoryDto.setPartNumber("");
+            memoryDto.setSerialNumber("");
+            modules.add(memoryDto);
+        }
+        return modules;
+    }   
 
     /**
      * Retrieves all system metrics (CPU, RAM, disks, network, GPU).

@@ -9,7 +9,14 @@ import java.util.List;
 
 /**
  * REST controller exposing endpoints to retrieve system metrics.
- * Provides routes for global and per-component metrics (CPU, RAM, disks, network, GPU).
+ * Routes:
+ *  - /api/monitoring  -> full snapshot (all metrics)
+ *  - /api/cpu         -> CPU metrics only
+ *  - /api/ram         -> RAM metrics only
+ *  - /api/disks       -> Disks metrics list
+ *  - /api/networks    -> Network interfaces metrics list
+ *  - /api/gpu         -> GPU metrics
+ *  - /api/ram/modules -> (optional) physical memory modules inventory
  */
 @RestController
 public class MonitoringController {
@@ -78,5 +85,15 @@ public class MonitoringController {
     @GetMapping("/api/gpu")
     public GpuMetricsDTO getGpuMetrics() {
         return monitoringService.getGpuMetrics();
+    }
+
+    /**
+     * Physical memory modules inventory.
+     * Optional endpoint — returns a list of MemoryModuleDTO for hardware inventory/diagnostics.
+     * This data is relatively static; consider calling it rarely or caching.
+     */
+    @GetMapping("/api/ram/modules")
+    public List<MemoryMetricsDTO> getMemoryMetrics() {
+        return monitoringService.getMemoryMetrics();
     }
 }
