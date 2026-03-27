@@ -1,10 +1,11 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Monitoring } from './monitoring';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
