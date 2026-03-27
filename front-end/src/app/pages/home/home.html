@@ -1,5 +1,50 @@
 <div class="welcome-container">
-	<h1>Bienvenue !</h1>
-	<p>Cliquez</p>
-	<button routerLink="/dashboard">GO !</button>
+  <h1>Dashboard Monitoring</h1>
+  <p class="subtitle">Bienvenue sur le système de supervision.</p>
+ </div>
+
+<div *ngIf="metrics; else loading" class="dashboard">
+  <section class="metrics-section">
+    <h2>CPU</h2>
+    <p>Nom : {{ metrics.cpu?.name }}</p>
+    <p>Utilisation : {{ metrics.cpu?.usagePercent | number:'1.0-2' }} %</p>
+    <p>Température : {{ metrics.cpu?.temperature }} °C</p>
+    <p>Cœurs physiques : {{ metrics.cpu?.physicalCores }}</p>
+    <p>Cœurs logiques : {{ metrics.cpu?.logicalCores }}</p>
+    <p>Fréquence max : {{ metrics.cpu?.maxFreq }} Hz</p>
+    <p>Fréquences actuelles : {{ metrics.cpu?.currentFreq?.join(', ') }}</p>
+  </section>
+  <section class="metrics-section">
+    <h2>RAM</h2>
+    <p>Total : {{ metrics.ram?.totalMB }} MB</p>
+    <p>Disponible : {{ metrics.ram?.availableMB }} MB</p>
+    <p>Utilisée : {{ metrics.ram?.usedMB }} MB</p>
+    <p>Utilisation : {{ metrics.ram?.usagePercent | number:'1.0-2' }} %</p>
+  </section>
+  <section class="metrics-section">
+    <h2>Disques</h2>
+    <ul>
+      <li *ngFor="let disk of metrics.disks">
+        {{ disk.name }} : {{ disk.usedMB }}/{{ disk.totalMB }} MB ({{ disk.usagePercent | number:'1.0-2' }} %)
+      </li>
+    </ul>
+  </section>
+  <section class="metrics-section">
+    <h2>Réseau</h2>
+    <ul>
+      <li *ngFor="let net of metrics.networks">
+        {{ net.interfaceName }} ({{ net.ipAddress }}) : {{ net.bytesReceived }} RX / {{ net.bytesSent }} TX
+      </li>
+    </ul>
+  </section>
+  <section class="metrics-section">
+    <h2>GPU</h2>
+    <p>Nom : {{ metrics.gpu?.name }}</p>
+    <p>Vendor : {{ metrics.gpu?.vendor }}</p>
+    <p>VRAM : {{ metrics.gpu?.vramUsedMB }}/{{ metrics.gpu?.vramTotalMB }} MB</p>
+    <p>Température : {{ metrics.gpu?.temperature }} °C</p>
+  </section>
 </div>
+<ng-template #loading>
+  <p>Chargement des données...</p>
+</ng-template>
