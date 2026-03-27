@@ -23,4 +23,15 @@ export class Dashboard implements OnInit {
       error: err => console.error('Erreur lors du chargement des métriques', err)
     });
   }
+
+  /**
+   * Format an array of CPU frequencies (Hz) as a comma-separated string in MHz, rounded to 2 decimals.
+   * Returns '-' if input is not a valid array.
+   */
+  formatFreqArray(freqArray: any): string {
+    if (!Array.isArray(freqArray) || freqArray.length === 0) return '-';
+    return freqArray
+      .map((hz: number) => hz ? (hz / 1_000_000).toFixed(2) : '-')
+      .join(', ');
+  }
 }

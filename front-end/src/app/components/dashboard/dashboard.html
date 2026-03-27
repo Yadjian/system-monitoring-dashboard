@@ -1,45 +1,40 @@
-<div *ngIf="metrics; else loading" class="dashboard">
-  <section class="metrics-section">
-    <h2>CPU</h2>
-    <p>Nom : {{ metrics.cpu?.name }}</p>
-    <p>Utilisation : {{ metrics.cpu?.usagePercent | number:'1.0-2' }} %</p>
-    <p>Température : {{ metrics.cpu?.temperature }} °C</p>
-    <p>Cœurs physiques : {{ metrics.cpu?.physicalCores }}</p>
-    <p>Cœurs logiques : {{ metrics.cpu?.logicalCores }}</p>
-    <p>Fréquence max : {{ metrics.cpu?.maxFreq }} Hz</p>
-    <p>Fréquences actuelles : {{ metrics.cpu?.currentFreq?.join(', ') }}</p>
-  </section>
-  <section class="metrics-section">
-    <h2>RAM</h2>
-    <p>Total : {{ metrics.ram?.totalMB }} MB</p>
-    <p>Disponible : {{ metrics.ram?.availableMB }} MB</p>
-    <p>Utilisée : {{ metrics.ram?.usedMB }} MB</p>
-    <p>Utilisation : {{ metrics.ram?.usagePercent | number:'1.0-2' }} %</p>
-  </section>
-  <section class="metrics-section">
-    <h2>Disques</h2>
-    <ul>
-      <li *ngFor="let disk of metrics.disks">
-        {{ disk.name }} : {{ disk.usedMB }}/{{ disk.totalMB }} MB ({{ disk.usagePercent | number:'1.0-2' }} %)
-      </li>
-    </ul>
-  </section>
-  <section class="metrics-section">
-    <h2>Réseau</h2>
-    <ul>
-      <li *ngFor="let net of metrics.networks">
-        {{ net.interfaceName }} ({{ net.ipAddress }}) : {{ net.bytesReceived }} RX / {{ net.bytesSent }} TX
-      </li>
-    </ul>
-  </section>
-  <section class="metrics-section">
-    <h2>GPU</h2>
-    <p>Nom : {{ metrics.gpu?.name }}</p>
-    <p>Vendor : {{ metrics.gpu?.vendor }}</p>
-    <p>VRAM : {{ metrics.gpu?.vramUsedMB }}/{{ metrics.gpu?.vramTotalMB }} MB</p>
-    <p>Température : {{ metrics.gpu?.temperature }} °C</p>
-  </section>
-</div>
+<table class="metrics-table" *ngIf="metrics; else loading">
+  <thead>
+    <tr>
+      <th>Catégorie</th>
+      <th>Détail</th>
+      <th>Valeur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- CPU -->
+    <tr><td>CPU</td><td>Nom</td><td>{{ metrics.cpu?.name }}</td></tr>
+    <tr><td>CPU</td><td>Utilisation</td><td>{{ metrics.cpu?.usagePercent | number:'1.0-1' }} %</td></tr>
+    <tr><td>CPU</td><td>Température</td><td>{{ metrics.cpu?.temperature | number:'1.0-1' }} °C</td></tr>
+    <tr><td>CPU</td><td>Cœurs physiques</td><td>{{ metrics.cpu?.physicalCores }}</td></tr>
+    <tr><td>CPU</td><td>Cœurs logiques</td><td>{{ metrics.cpu?.logicalCores }}</td></tr>
+    <tr><td>CPU</td><td>Fréquence max</td><td>{{ (metrics.cpu?.maxFreq / 1_000_000) | number:'1.0-2' }} MHz</td></tr>
+    <tr><td>CPU</td><td>Fréquences actuelles</td><td>{{ formatFreqArray(metrics.cpu?.currentFreq) }} MHz</td></tr>
+    <!-- RAM -->
+    <tr><td>RAM</td><td>Total</td><td>{{ metrics.ram?.totalMB | number:'1.0-0' }} MB</td></tr>
+    <tr><td>RAM</td><td>Disponible</td><td>{{ metrics.ram?.availableMB | number:'1.0-0' }} MB</td></tr>
+    <tr><td>RAM</td><td>Utilisée</td><td>{{ metrics.ram?.usedMB | number:'1.0-0' }} MB</td></tr>
+    <tr><td>RAM</td><td>Utilisation</td><td>{{ metrics.ram?.usagePercent | number:'1.0-1' }} %</td></tr>
+    <!-- Disques -->
+    <ng-container *ngFor="let disk of metrics.disks">
+      <tr><td>Disque</td><td>{{ disk.name }}</td><td>{{ disk.usedMB | number:'1.0-0' }}/{{ disk.totalMB | number:'1.0-0' }} MB ({{ disk.usagePercent | number:'1.0-1' }} %)</td></tr>
+    </ng-container>
+    <!-- Réseau -->
+    <ng-container *ngFor="let net of metrics.networks">
+      <tr><td>Réseau</td><td>{{ net.interfaceName }} ({{ net.ipAddress }})</td><td>{{ net.bytesReceived | number:'1.0-0' }} RX / {{ net.bytesSent | number:'1.0-0' }} TX</td></tr>
+    </ng-container>
+    <!-- GPU -->
+    <tr><td>GPU</td><td>Nom</td><td>{{ metrics.gpu?.name }}</td></tr>
+    <tr><td>GPU</td><td>Vendor</td><td>{{ metrics.gpu?.vendor }}</td></tr>
+    <tr><td>GPU</td><td>VRAM</td><td>{{ metrics.gpu?.vramUsedMB | number:'1.0-0' }}/{{ metrics.gpu?.vramTotalMB | number:'1.0-0' }} MB</td></tr>
+    <tr><td>GPU</td><td>Température</td><td>{{ metrics.gpu?.temperature | number:'1.0-1' }} °C</td></tr>
+  </tbody>
+</table>
 <ng-template #loading>
   <p>Chargement des données...</p>
 </ng-template>

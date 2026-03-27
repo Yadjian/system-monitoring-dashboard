@@ -68,3 +68,63 @@ body, .welcome-container {
 	padding-left: 1.2em;
 	margin: 0;
 }
+
+/* Style pro pour tableau dashboard */
+.metrics-table {
+  width: 100%;
+  max-width: 1100px;
+  margin: 2rem auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #232f3e;
+  color: #f5f7fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(34,51,77,0.12);
+  overflow: hidden;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+.metrics-table th, .metrics-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+}
+.metrics-table th {
+  background: #1a2233;
+  color: #7ec7ff;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid #2e3b4e;
+}
+.metrics-table tr {
+  transition: background 0.2s;
+}
+.metrics-table tbody tr:nth-child(even) {
+  background: #263447;
+}
+.metrics-table tbody tr:nth-child(odd) {
+  background: #232f3e;
+}
+.metrics-table tbody tr:hover {
+  background: #1e293b;
+}
+.metrics-table td {
+  border-bottom: 1px solid #2e3b4e;
+  font-size: 1rem;
+}
+.metrics-table td:last-child {
+  font-family: 'Consolas', 'Menlo', monospace;
+  color: #7ec7ff;
+}
+.metrics-table td:first-child {
+  font-weight: 600;
+  color: #b0c4d8;
+}
+.metrics-table th:first-child {
+  border-top-left-radius: 12px;
+}
+.metrics-table th:last-child {
+  border-top-right-radius: 12px;
+}
+.metrics-table tr:last-child td {
+  border-bottom: none;
+}
