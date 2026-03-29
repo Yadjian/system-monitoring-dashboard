@@ -11,10 +11,6 @@ public class CpuMetricsDTO {
     private double usagePercent;
     /** Current CPU temperature. */
     private double temperature;
-    /** Maximum recorded CPU temperature. */
-    private double temperatureMax;
-    /** Minimum recorded CPU temperature. */
-    private double temperatureMin;
     /** Number of physical CPU cores. */
     private int physicalCores;
     /** Number of logical CPU cores. */
@@ -45,10 +41,4 @@ public class CpuMetricsDTO {
 
     public long[] getCurrentFreq() { return currentFreq; }
     public void setCurrentFreq(long[] currentFreq) { this.currentFreq = currentFreq; }
-
-    public double getTemperatureMax() { return temperatureMax; }
-    public void setTemperatureMax(double temperatureMax) { this.temperatureMax = temperatureMax; }
-
-    public double getTemperatureMin() { return temperatureMin; }
-    public void setTemperatureMin(double temperatureMin) { this.temperatureMin = temperatureMin; }
 }

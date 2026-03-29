@@ -11,12 +11,76 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Service responsible for retrieving system metrics using the OSHI library.
- * Provides methods to get metrics for CPU, RAM, disks, network interfaces, and GPU.
+ * Service complet pour le dashboard système, strictement basé sur la liste validée.
  */
 @Service
 public class MonitoringService {
+    /**
+     * Regroupe toutes les métriques dynamiques et statiques dans un seul objet.
+     * @return AllMetricsDTO contenant toutes les infos du dashboard.
+     */
+    public AllMetricsDTO getAllMetrics() {
+        AllMetricsDTO all = new AllMetricsDTO();
+        all.setPcType(getPcType());
+        all.setPcInfo(getPcInfo());
+        all.setBiosInfo(getBiosInfo());
+        all.setOsInfo(getOsInfo());
+        all.setCpu(getCpuMetrics());
+        all.setRam(getRamMetrics());
+        all.setGpu(getGpuMetrics());
+        all.setMemorySlots(getMemorySlots());
+        all.setDisks(getDiskMetrics());
+        return all;
+    }
+    /**
+     * Type de PC (Portable ou Fixe)
+     */
+    public String getPcType() {
+        var hardware = systemInfo.getHardware();
+        // Heuristique simple : présence batterie = portable
+        return hardware.getPowerSources().isEmpty() ? "PC Fixe" : "PC Portable";
+    }
 
+    /**
+     * Infos PC (fabricant, modèle, carte mère)
+     */
+    public PcInfoDTO getPcInfo() {
+        var hardware = systemInfo.getHardware();
+        PcInfoDTO dto = new PcInfoDTO();
+        dto.setManufacturer(hardware.getComputerSystem().getManufacturer());
+        dto.setModel(hardware.getComputerSystem().getModel());
+        dto.setMotherboard(hardware.getComputerSystem().getBaseboard().getModel());
+        
+        return dto;
+    }
+
+    /**
+     * Infos BIOS (éditeur, version, date de release)
+     */
+    public BiosInfoDTO getBiosInfo() {
+        var hardware = systemInfo.getHardware();
+        var firmware = hardware.getComputerSystem().getFirmware();
+        BiosInfoDTO dto = new BiosInfoDTO();
+        dto.setVendor(firmware.getManufacturer());
+        dto.setVersion(firmware.getVersion());
+        dto.setReleaseDate(firmware.getReleaseDate());
+        
+        return dto;
+    }
+
+    /**
+     * Infos OS (édition, version, date de boot, uptime)
+     */
+    public OsInfoDTO getOsInfo() {
+        var os = systemInfo.getOperatingSystem();
+        OsInfoDTO dto = new OsInfoDTO();
+        dto.setEdition(os.getFamily());
+        dto.setVersion(os.getVersionInfo().getVersion());
+        dto.setInstallDate(os.getSystemBootTime());
+        dto.setUptime(os.getSystemUptime());
+        
+        return dto;
+    }
 
     /** Singleton instance of SystemInfo for hardware access. */
     private final SystemInfo systemInfo = new SystemInfo();
@@ -52,17 +116,14 @@ public class MonitoringService {
     }
 
     /**
-     * Retrieves current CPU metrics.
-     * @return CpuMetricsDTO containing CPU information and usage.
+     * CPU : nom, cœurs/threads, usage, fréquence actuelle
      */
     public CpuMetricsDTO getCpuMetrics() {
-        // Return the last asynchronously updated value (may be null at startup)
         return cachedCpuMetrics != null ? cachedCpuMetrics : new CpuMetricsDTO();
     }
 
     /**
-     * Retrieves current RAM metrics.
-     * @return RamMetricsDTO containing RAM information and usage.
+     * RAM : taille totale, type, utilisation (%)
      */
     public RamMetricsDTO getRamMetrics() {
         var hardware = systemInfo.getHardware();
@@ -77,48 +138,25 @@ public class MonitoringService {
     }
 
     /**
-     * Retrieves current disk metrics for all disk drives.
-     * @return List of DiskMetricsDTO containing disk information and usage.
+     * Stockage : modèle, type, capacité
      */
     public List<DiskMetricsDTO> getDiskMetrics() {
         var hardware = systemInfo.getHardware();
         List<DiskMetricsDTO> diskDtos = new ArrayList<>();
         for (HWDiskStore disk : hardware.getDiskStores()) {
             DiskMetricsDTO diskDto = new DiskMetricsDTO();
-            diskDto.setName(disk.getName());
+            diskDto.setName(disk.getModel());
+            diskDto.setType(disk.getModel().toLowerCase().contains("ssd") ? "SSD" : "HDD");
             diskDto.setTotalMB(disk.getSize() / (1024 * 1024));
-            diskDto.setFreeMB(0);
-            diskDto.setUsedMB(diskDto.getTotalMB() - diskDto.getFreeMB());
-            diskDto.setUsagePercent((diskDto.getTotalMB() > 0) ? (diskDto.getUsedMB() * 100.0 / diskDto.getTotalMB()) : 0);
+
             diskDtos.add(diskDto);
         }
         return diskDtos;
     }
 
-    /**
-     * Retrieves current network metrics for all network interfaces.
-     * @return List of NetworkMetricsDTO containing network information and usage.
-     */
-    public List<NetworkMetricsDTO> getNetworkMetrics() {
-        var hardware = systemInfo.getHardware();
-        List<NetworkMetricsDTO> networkDtos = new ArrayList<>();
-        for (NetworkIF net : hardware.getNetworkIFs()) {
-            NetworkMetricsDTO netDto = new NetworkMetricsDTO();
-            netDto.setInterfaceName(net.getName());
-            netDto.setIpAddress(net.getIPv4addr().length > 0 ? net.getIPv4addr()[0] : "");
-            netDto.setMacAddress(net.getMacaddr());
-            netDto.setBytesSent(net.getBytesSent());
-            netDto.setBytesReceived(net.getBytesRecv());
-            netDto.setPacketsSent(net.getPacketsSent());
-            netDto.setPacketsReceived(net.getPacketsRecv());
-            networkDtos.add(netDto);
-        }
-        return networkDtos;
-    }
 
     /**
-     * Retrieves current GPU metrics.
-     * @return GpuMetricsDTO containing GPU information.
+     * GPU : modèle, fabricant, VRAM
      */
     public GpuMetricsDTO getGpuMetrics() {
         var hardware = systemInfo.getHardware();
@@ -129,23 +167,23 @@ public class MonitoringService {
             gpuDto.setName(gpu.getName());
             gpuDto.setVendor(gpu.getVendor());
             gpuDto.setVramTotalMB(gpu.getVRam() / (1024 * 1024));
-            gpuDto.setVramUsedMB(0);
-            gpuDto.setTemperature(0.0);
         }
         return gpuDto;
     }
 
     /**
-     * Retrieves all system metrics (CPU, RAM, disks, network, GPU).
-     * @return SystemMetricsDTO containing all system information.
+     * Slot mémoire : fabricant, référence, taille/fréquence
      */
-    public SystemMetricsDTO getSystemMetrics() {
-        SystemMetricsDTO dto = new SystemMetricsDTO();
-        dto.setCpu(getCpuMetrics());
-        dto.setRam(getRamMetrics());
-        dto.setDisks(getDiskMetrics());
-        dto.setNetworks(getNetworkMetrics());
-        dto.setGpu(getGpuMetrics());
-        return dto;
+    public List<MemorySlotDTO> getMemorySlots() {
+        var hardware = systemInfo.getHardware();
+        List<MemorySlotDTO> slots = new ArrayList<>();
+        for (PhysicalMemory mem : hardware.getMemory().getPhysicalMemory()) {
+            MemorySlotDTO slot = new MemorySlotDTO();
+            slot.setManufacturer(mem.getManufacturer());
+            slot.setPartNumber(mem.getBankLabel());
+            slot.setClockSpeedMHz(mem.getClockSpeed() / 1_000_000);
+            slots.add(slot);
+        }
+        return slots;
     }
 }
