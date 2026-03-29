@@ -6,6 +6,9 @@ import oshi.hardware.*;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service responsible for retrieving system metrics using the OSHI library.
@@ -14,19 +17,28 @@ import java.util.List;
 @Service
 public class MonitoringService {
 
+
     /** Singleton instance of SystemInfo for hardware access. */
     private final SystemInfo systemInfo = new SystemInfo();
 
-    /**
-     * Retrieves current CPU metrics.
-     * @return CpuMetricsDTO containing CPU information and usage.
-     */
-    public CpuMetricsDTO getCpuMetrics() {
+    /** Scheduled executor for async CPU load update */
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    /** Cached CPU metrics */
+    private volatile CpuMetricsDTO cachedCpuMetrics = null;
+
+    /** Init block to start async CPU monitoring */
+    {
+        scheduler.scheduleAtFixedRate(this::updateCpuMetrics, 0, 1, TimeUnit.SECONDS);
+    }
+
+    /** Updates the cached CPU metrics asynchronously */
+    private void updateCpuMetrics() {
         var hardware = systemInfo.getHardware();
         CentralProcessor cpu = hardware.getProcessor();
         Sensors sensors = hardware.getSensors();
         long[] oldTicks = cpu.getSystemCpuLoadTicks();
-        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         double cpuLoad = cpu.getSystemCpuLoadBetweenTicks(oldTicks) * 100;
         CpuMetricsDTO cpuDto = new CpuMetricsDTO();
         cpuDto.setName(cpu.getProcessorIdentifier().getName());
@@ -36,7 +48,16 @@ public class MonitoringService {
         cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
         cpuDto.setMaxFreq(cpu.getMaxFreq());
         cpuDto.setCurrentFreq(cpu.getCurrentFreq());
-        return cpuDto;
+        cachedCpuMetrics = cpuDto;
+    }
+
+    /**
+     * Retrieves current CPU metrics.
+     * @return CpuMetricsDTO containing CPU information and usage.
+     */
+    public CpuMetricsDTO getCpuMetrics() {
+        // Return the last asynchronously updated value (may be null at startup)
+        return cachedCpuMetrics != null ? cachedCpuMetrics : new CpuMetricsDTO();
     }
 
     /**
