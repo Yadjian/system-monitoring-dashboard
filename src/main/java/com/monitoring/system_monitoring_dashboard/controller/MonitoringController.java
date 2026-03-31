@@ -2,14 +2,12 @@ package com.monitoring.system_monitoring_dashboard.controller;
 
 import com.monitoring.system_monitoring_dashboard.model.*;
 import com.monitoring.system_monitoring_dashboard.service.MonitoringService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
  * REST controller exposing endpoints to retrieve system metrics.
- * Provides routes for global and per-component metrics (CPU, RAM, disks, network, GPU).
  */
 @RestController
 public class MonitoringController {
@@ -21,18 +19,16 @@ public class MonitoringController {
      * Constructor for MonitoringController.
      * @param monitoringService Service used to retrieve system metrics.
      */
-    @Autowired
     public MonitoringController(MonitoringService monitoringService) {
         this.monitoringService = monitoringService;
     }
 
     /**
-     * Endpoint to retrieve all system metrics.
-     * @return SystemMetricsDTO containing all system information.
+     * Endpoint to retrieve all system metrics (agrégé).
      */
-    @GetMapping("/api/monitoring")
-    public SystemMetricsDTO getSystemMetrics() {
-        return monitoringService.getSystemMetrics();
+    @GetMapping("/api/metrics")
+    public AllMetricsDTO getAllMetrics() {
+        return monitoringService.getAllMetrics();
     }
 
     /**
@@ -60,15 +56,6 @@ public class MonitoringController {
     @GetMapping("/api/disks")
     public List<DiskMetricsDTO> getDiskMetrics() {
         return monitoringService.getDiskMetrics();
-    }
-
-    /**
-     * Endpoint to retrieve network metrics.
-     * @return List of NetworkMetricsDTO containing network information and usage.
-     */
-    @GetMapping("/api/networks")
-    public List<NetworkMetricsDTO> getNetworkMetrics() {
-        return monitoringService.getNetworkMetrics();
     }
 
     /**
