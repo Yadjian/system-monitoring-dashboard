@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
+import { Monitoring } from '../../monitoring';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,10 +12,10 @@ import { ChangeDetectorRef } from '@angular/core';
 export class Dashboard implements OnInit {
   metrics: any;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private monitoring: Monitoring, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
-    this.http.get('/api/monitoring').subscribe({
+    this.monitoring.getMetrics().subscribe({
       next: data => {
         this.metrics = data;
         this.cdr.detectChanges();

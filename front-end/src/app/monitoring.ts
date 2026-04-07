@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Monitoring {
-  private apiUrl = 'http://localhost:8080/api/monitoring'; // adapte l’URL si besoin
+  private apiUrl = 'http://localhost:8080/api/metrics';
 
   constructor(private http: HttpClient) { }
 

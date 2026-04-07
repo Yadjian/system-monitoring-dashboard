@@ -11,13 +11,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Service complet pour le dashboard système, strictement basé sur la liste validée.
+ * Complete service for the system dashboard, strictly based on the validated list.
  */
 @Service
 public class MonitoringService {
     /**
-     * Regroupe toutes les métriques dynamiques et statiques dans un seul objet.
-     * @return AllMetricsDTO contenant toutes les infos du dashboard.
+     * Aggregates all dynamic and static metrics into a single object.
+     * @return AllMetricsDTO containing all dashboard information.
      */
     public AllMetricsDTO getAllMetrics() {
         AllMetricsDTO all = new AllMetricsDTO();
@@ -32,17 +32,18 @@ public class MonitoringService {
         all.setDisks(getDiskMetrics());
         return all;
     }
+
     /**
-     * Type de PC (Portable ou Fixe)
+     * PC type (Laptop or Desktop)
      */
     public String getPcType() {
         var hardware = systemInfo.getHardware();
-        // Heuristique simple : présence batterie = portable
+        // Simple heuristic: battery presence = laptop
         return hardware.getPowerSources().isEmpty() ? "PC Fixe" : "PC Portable";
     }
 
     /**
-     * Infos PC (fabricant, modèle, carte mère)
+     * PC info (manufacturer, model, motherboard)
      */
     public PcInfoDTO getPcInfo() {
         var hardware = systemInfo.getHardware();
@@ -50,12 +51,12 @@ public class MonitoringService {
         dto.setManufacturer(hardware.getComputerSystem().getManufacturer());
         dto.setModel(hardware.getComputerSystem().getModel());
         dto.setMotherboard(hardware.getComputerSystem().getBaseboard().getModel());
-        
+
         return dto;
     }
 
     /**
-     * Infos BIOS (éditeur, version, date de release)
+     * BIOS info (vendor, version, release date)
      */
     public BiosInfoDTO getBiosInfo() {
         var hardware = systemInfo.getHardware();
@@ -64,12 +65,12 @@ public class MonitoringService {
         dto.setVendor(firmware.getManufacturer());
         dto.setVersion(firmware.getVersion());
         dto.setReleaseDate(firmware.getReleaseDate());
-        
+
         return dto;
     }
 
     /**
-     * Infos OS (édition, version, date de boot, uptime)
+     * OS info (edition, version, boot time, uptime)
      */
     public OsInfoDTO getOsInfo() {
         var os = systemInfo.getOperatingSystem();
@@ -78,7 +79,7 @@ public class MonitoringService {
         dto.setVersion(os.getVersionInfo().getVersion());
         dto.setInstallDate(os.getSystemBootTime());
         dto.setUptime(os.getSystemUptime());
-        
+
         return dto;
     }
 
@@ -116,14 +117,14 @@ public class MonitoringService {
     }
 
     /**
-     * CPU : nom, cœurs/threads, usage, fréquence actuelle
+     * CPU: name, cores/threads, usage, current frequency
      */
     public CpuMetricsDTO getCpuMetrics() {
         return cachedCpuMetrics != null ? cachedCpuMetrics : new CpuMetricsDTO();
     }
 
     /**
-     * RAM : taille totale, type, utilisation (%)
+     * RAM: total size, type, usage (%)
      */
     public RamMetricsDTO getRamMetrics() {
         var hardware = systemInfo.getHardware();
@@ -138,7 +139,7 @@ public class MonitoringService {
     }
 
     /**
-     * Stockage : modèle, type, capacité
+     * Storage: model, type, capacity
      */
     public List<DiskMetricsDTO> getDiskMetrics() {
         var hardware = systemInfo.getHardware();
@@ -156,23 +157,19 @@ public class MonitoringService {
 
 
     /**
-     * GPU : modèle, fabricant, VRAM
+     * GPU: model, vendor, VRAM
      */
     public GpuMetricsDTO getGpuMetrics() {
-        var hardware = systemInfo.getHardware();
-        List<GraphicsCard> gpus = hardware.getGraphicsCards();
+        // Temporary deactivation of GPU retrieval for JSON bug diagnosis
         GpuMetricsDTO gpuDto = new GpuMetricsDTO();
-        if (!gpus.isEmpty()) {
-            GraphicsCard gpu = gpus.get(0);
-            gpuDto.setName(gpu.getName());
-            gpuDto.setVendor(gpu.getVendor());
-            gpuDto.setVramTotalMB(gpu.getVRam() / (1024 * 1024));
-        }
+        gpuDto.setName("disabled");
+        gpuDto.setVendor("disabled");
+        gpuDto.setVramTotalMB(0);
         return gpuDto;
     }
 
     /**
-     * Slot mémoire : fabricant, référence, taille/fréquence
+     * Memory slot: manufacturer, part number, size/frequency
      */
     public List<MemorySlotDTO> getMemorySlots() {
         var hardware = systemInfo.getHardware();
