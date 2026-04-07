@@ -23,12 +23,12 @@ export class Dashboard implements OnInit, OnDestroy {
     this.subscription = this.webSocketService.getMetrics().subscribe({
       next: data => {
         if (data) {
-          console.log('Metrics reçues:', data);
+          console.log('📊 Metrics reçues:', data);
           this.metrics = data;
-          this.cdr.markForCheck();
+          this.cdr.markForCheck();  // Force detection du changement
         }
       },
-      error: err => console.error('Erreur lors de la réception des métriques', err)
+      error: err => console.error('❌ Erreur lors de la réception des métriques', err)
     });
   }
 
