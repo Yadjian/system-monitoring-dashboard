@@ -28,11 +28,6 @@
     <ng-container *ngFor="let net of metrics.networks">
       <tr><td>Réseau</td><td>{{ net.interfaceName }} ({{ net.ipAddress }})</td><td>{{ net.bytesReceived | number:'1.0-0' }} RX / {{ net.bytesSent | number:'1.0-0' }} TX</td></tr>
     </ng-container>
-    <!-- GPU -->
-    <tr><td>GPU</td><td>Nom</td><td>{{ metrics.gpu?.name }}</td></tr>
-    <tr><td>GPU</td><td>Vendor</td><td>{{ metrics.gpu?.vendor }}</td></tr>
-    <tr><td>GPU</td><td>VRAM</td><td>{{ metrics.gpu?.vramUsedMB | number:'1.0-0' }}/{{ metrics.gpu?.vramTotalMB | number:'1.0-0' }} MB</td></tr>
-    <tr><td>GPU</td><td>Température</td><td>{{ metrics.gpu?.temperature | number:'1.0-1' }} °C</td></tr>
   </tbody>
 </table>
 <ng-template #loading>
