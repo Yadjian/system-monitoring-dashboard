@@ -66,10 +66,21 @@ public class MonitoringService {
     public PcInfoDTO getPcInfo() {
         var hardware = systemInfo.getHardware();
         PcInfoDTO dto = new PcInfoDTO();
-        dto.setManufacturer(hardware.getComputerSystem().getManufacturer());
-        dto.setModel(hardware.getComputerSystem().getModel());
-        dto.setMotherboard(hardware.getComputerSystem().getBaseboard().getModel());
-
+        try {
+            String mfr = hardware.getComputerSystem().getManufacturer();
+            dto.setManufacturer((mfr == null || mfr.isBlank()) ? "Unknown" : mfr);
+            
+            String mdl = hardware.getComputerSystem().getModel();
+            dto.setModel((mdl == null || mdl.isBlank()) ? "Unknown" : mdl);
+            
+            String mb = hardware.getComputerSystem().getBaseboard().getModel();
+            dto.setMotherboard((mb == null || mb.isBlank()) ? "Unknown" : mb);
+        } catch (Exception e) {
+            logger.warn("Error retrieving PC info", e);
+            dto.setManufacturer("Unknown");
+            dto.setModel("Unknown");
+            dto.setMotherboard("Unknown");
+        }
         return dto;
     }
 
@@ -78,12 +89,24 @@ public class MonitoringService {
      */
     public BiosInfoDTO getBiosInfo() {
         var hardware = systemInfo.getHardware();
-        var firmware = hardware.getComputerSystem().getFirmware();
         BiosInfoDTO dto = new BiosInfoDTO();
-        dto.setVendor(firmware.getManufacturer());
-        dto.setVersion(firmware.getVersion());
-        dto.setReleaseDate(firmware.getReleaseDate());
-
+        try {
+            var firmware = hardware.getComputerSystem().getFirmware();
+            
+            String vendor = firmware.getManufacturer();
+            dto.setVendor((vendor == null || vendor.isBlank()) ? "Unknown" : vendor);
+            
+            String version = firmware.getVersion();
+            dto.setVersion((version == null || version.isBlank()) ? "Unknown" : version);
+            
+            String releaseDate = firmware.getReleaseDate();
+            dto.setReleaseDate((releaseDate == null || releaseDate.isBlank()) ? "Unknown" : releaseDate);
+        } catch (Exception e) {
+            logger.warn("Error retrieving BIOS info", e);
+            dto.setVendor("Unknown");
+            dto.setVersion("Unknown");
+            dto.setReleaseDate("Unknown");
+        }
         return dto;
     }
 
@@ -113,23 +136,26 @@ public class MonitoringService {
             
             // Calculate CPU load between two tick measurements
             long[] currTicks = cpu.getSystemCpuLoadTicks();
-            double cpuLoad = 0;
+            double cpuLoad = 0.0;
             
             if (prevTicks != null) {
-                cpuLoad = cpu.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
+                // getSystemCpuLoadBetweenTicks returns a decimal 0.0-1.0, multiply by 100 for percentage
+                cpuLoad = cpu.getSystemCpuLoadBetweenTicks(prevTicks) * 100.0;
             }
             prevTicks = currTicks;
             
             CpuMetricsDTO cpuDto = new CpuMetricsDTO();
-            cpuDto.setName(cpu.getProcessorIdentifier().getName());
-            cpuDto.setUsagePercent(Math.max(0, cpuLoad)); // Ensure >= 0
-            cpuDto.setTemperature(sensors.getCpuTemperature());
+            String cpuName = cpu.getProcessorIdentifier().getName();
+            cpuDto.setName((cpuName == null || cpuName.isBlank()) ? "Unknown CPU" : cpuName);
+            cpuDto.setUsagePercent(Math.min(100.0, Math.max(0.0, cpuLoad))); // Clamp 0-100
+            double temp = sensors.getCpuTemperature();
+            cpuDto.setTemperature(temp > 0 ? temp : -1); // -1 means unavailable
             cpuDto.setPhysicalCores(cpu.getPhysicalProcessorCount());
             cpuDto.setLogicalCores(cpu.getLogicalProcessorCount());
             cpuDto.setMaxFreq(cpu.getMaxFreq());
             cpuDto.setCurrentFreq(cpu.getCurrentFreq());
             cachedCpuMetrics = cpuDto;
-            logger.debug("CPU updated: {}%", cpuLoad);
+            logger.debug("CPU updated: {:.1f}%", cpuLoad);
         } catch (Exception e) {
             logger.error("Error updating CPU metrics", e);
         }
@@ -158,16 +184,25 @@ public class MonitoringService {
     }
 
     /**
-     * Storage: model, type, capacity
+     * Storage: physical disks with capacity and partitioned space usage
      */
     public List<DiskMetricsDTO> getDiskMetrics() {
         var hardware = systemInfo.getHardware();
         List<DiskMetricsDTO> diskDtos = new ArrayList<>();
         for (HWDiskStore disk : hardware.getDiskStores()) {
             DiskMetricsDTO diskDto = new DiskMetricsDTO();
-            diskDto.setName(disk.getModel());
-            diskDto.setType(disk.getModel().toLowerCase().contains("ssd") ? "SSD" : "HDD");
+            String model = disk.getModel();
+            diskDto.setName((model == null || model.isBlank()) ? "Unknown Disk" : model);
+            diskDto.setType(model != null && model.toLowerCase().contains("ssd") ? "SSD" : "HDD");
             diskDto.setTotalMB(disk.getSize() / (1024 * 1024));
+            
+            // Calculate used space from partitions
+            long usedMB = 0;
+            for (HWPartition partition : disk.getPartitions()) {
+                usedMB += (partition.getSize() / (1024 * 1024));
+            }
+            diskDto.setUsedMB(usedMB);
+            diskDto.setUsagePercent((diskDto.getTotalMB() > 0) ? (usedMB * 100.0 / diskDto.getTotalMB()) : 0);
 
             diskDtos.add(diskDto);
         }
@@ -192,12 +227,29 @@ public class MonitoringService {
     public List<MemorySlotDTO> getMemorySlots() {
         var hardware = systemInfo.getHardware();
         List<MemorySlotDTO> slots = new ArrayList<>();
-        for (PhysicalMemory mem : hardware.getMemory().getPhysicalMemory()) {
-            MemorySlotDTO slot = new MemorySlotDTO();
-            slot.setManufacturer(mem.getManufacturer());
-            slot.setPartNumber(mem.getBankLabel());
-            slot.setClockSpeedMHz(mem.getClockSpeed() / 1_000_000);
-            slots.add(slot);
+        try {
+            List<PhysicalMemory> memories = hardware.getMemory().getPhysicalMemory();
+            if (memories != null) {
+                for (PhysicalMemory mem : memories) {
+                    MemorySlotDTO slot = new MemorySlotDTO();
+                    
+                    String mfr = mem.getManufacturer();
+                    slot.setManufacturer((mfr == null || mfr.isBlank()) ? "Unknown" : mfr);
+                    
+                    String label = mem.getBankLabel();
+                    slot.setPartNumber((label == null || label.isBlank()) ? "Unknown" : label);
+                    
+                    long capacity = mem.getCapacity();
+                    slot.setCapacityMB(capacity > 0 ? capacity / (1024 * 1024) : 0);
+                    
+                    long clockSpeed = mem.getClockSpeed();
+                    slot.setClockSpeedMHz(clockSpeed > 0 ? clockSpeed / 1_000_000 : 0);
+                    
+                    slots.add(slot);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Error retrieving memory slots", e);
         }
         return slots;
     }
