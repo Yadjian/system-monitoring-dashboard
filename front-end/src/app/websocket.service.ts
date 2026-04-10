@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Client } from '@stomp/stompjs';
+import { AllMetrics } from './models/metrics';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
   private client: Client | null = null;
-  private metricsSubject = new BehaviorSubject<any>(null);
-  public metrics$: Observable<any> = this.metricsSubject.asObservable();
+  private metricsSubject = new BehaviorSubject<AllMetrics | null>(null);
+  public metrics$: Observable<AllMetrics | null> = this.metricsSubject.asObservable();
 
   constructor() {}
 
@@ -35,10 +36,8 @@ export class WebSocketService {
       // Subscribe to metrics topic
       this.client?.subscribe('/topic/metrics', (message) => {
         try {
-          const metrics = JSON.parse(message.body);
-          const clonedMetrics = JSON.parse(JSON.stringify(metrics));
-          console.log('Message reçu:', clonedMetrics);
-          this.metricsSubject.next(clonedMetrics);
+          const metrics = JSON.parse(message.body) as AllMetrics;
+          this.metricsSubject.next(metrics);
         } catch (e) {
           console.error('Error parsing metrics:', e);
         }
@@ -66,7 +65,7 @@ export class WebSocketService {
   /**
    * Get the metrics observable
    */
-  getMetrics(): Observable<any> {
+  getMetrics(): Observable<AllMetrics | null> {
     return this.metrics$;
   }
 }
